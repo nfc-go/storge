@@ -3,42 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NebulaDrive - Cloud Personal Vault</title>
+    <title>NFC GO - Secure Cloud Vault</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    
     <link rel="stylesheet" href="style.css">
     <script src="script.js" defer></script>
 </head>
-<body>
-
-    <div id="app-container" class="app-container blurred">
-        
+<body class="light-mode"> <div id="app-container" class="app-container blurred">
         <aside id="desktop-sidebar" class="desktop-sidebar">
             <div class="sidebar-brand">
-                <div class="brand-logo"><i class="fa-solid fa-cloud-bolt"></i></div>
-                <h1 class="brand-name">NebulaDrive</h1>
+                <div class="brand-logo"><i class="fa-solid fa-bolt"></i></div>
+                <h1 class="brand-name">NFC GO</h1>
                 <span id="sidebar-premium-badge" class="premium-badge hidden">PRO</span>
             </div>
             
             <button id="sidebar-upload-btn" class="btn btn-primary btn-block btn-upload">
                 <i class="fa-solid fa-plus"></i>
-                <span>Upload New</span>
+                <span class="txt-upload">Upload New</span>
                 <input type="file" id="sidebar-file-input" class="hidden-file-input" />
             </button>
             
             <nav class="sidebar-nav">
                 <a href="#" class="nav-link active" data-target="all">
-                    <i class="fa-solid fa-folder-open"></i><span>All Files</span>
-                </a>
-                <a href="#" class="nav-link" data-target="photos">
-                    <i class="fa-solid fa-image"></i><span>Photos</span>
-                </a>
-                <a href="#" class="nav-link" data-target="favorites">
-                    <i class="fa-solid fa-star"></i><span>Favorites</span>
-                </a>
-                <a href="#" class="nav-link" data-target="trash">
-                    <i class="fa-solid fa-trash-can"></i><span>Trash</span>
+                    <i class="fa-solid fa-folder-open"></i><span class="txt-all-files">All Files</span>
                 </a>
             </nav>
             
@@ -46,66 +33,47 @@
                 <div class="storage-info">
                     <i class="fa-solid fa-hard-drive storage-icon"></i>
                     <div class="storage-text-details">
-                        <span class="storage-title">Cloud Storage</span>
+                        <span class="storage-title txt-storage-title">Cloud Storage</span>
                         <span id="sidebar-storage-metrics" class="storage-metrics">0 MB / 512 MB</span>
                     </div>
                 </div>
                 <div class="progress-bar-container">
                     <div id="sidebar-storage-progress" class="progress-bar-fill"></div>
                 </div>
-                <button id="sidebar-upgrade-btn" class="btn btn-upgrade btn-block">Upgrade Storage</button>
+                <button id="sidebar-upgrade-btn" class="btn btn-upgrade btn-block txt-upgrade-btn">Upgrade Storage</button>
             </div>
         </aside>
 
         <main class="main-content">
             <header class="dashboard-header">
                 <div class="header-left">
-                    <div id="mobile-menu-toggle" class="mobile-menu-toggle"><i class="fa-solid fa-bars"></i></div>
+                    <div class="brand-display-mobile" style="font-weight:700; font-size:18px; color:var(--text-main); margin-right:15px;">NFC GO</div>
                     <div class="search-wrapper">
                         <i class="fa-solid fa-magnifying-glass search-icon"></i>
                         <input type="text" id="dashboard-search" class="search-input" placeholder="Search files..." />
                     </div>
                 </div>
                 
-                <div class="header-right">
-                    <button id="lang-toggle-btn" class="header-action-btn"><i class="fa-solid fa-language"></i>&nbsp;<span id="lang-indicator">العربية</span></button>
-                    <div id="profile-dropdown-wrapper" class="user-profile-dropdown">
-                        <div id="profile-dropdown-trigger" class="profile-trigger-btn">
-                            <div class="avatar-fallback"><span id="user-avatar-initials">G</span></div>
-                        </div>
-                        <div class="dropdown-menu-panel">
-                            <div class="dropdown-user-info">
-                                <div id="dropdown-user-name" class="user-display-name">Guest Workspace</div>
-                                <div class="user-display-tier">Free Tier Plan</div>
-                            </div>
-                            <hr class="dropdown-divider" />
-                            <button id="dropdown-lock-link" class="dropdown-item"><i class="fa-solid fa-lock"></i><span>Lock Vault</span></button>
-                            <button id="dropdown-logout-link" class="dropdown-item"><i class="fa-solid fa-arrow-right-from-bracket"></i><span>Log Out</span></button>
-                        </div>
-                    </div>
+                <div class="header-right" style="gap: 12px;">
+                    <button id="theme-toggle-btn" class="header-action-btn" style="padding: 8px 12px; background: rgba(0,0,0,0.05); border-radius: 8px;">
+                        <i class="fa-solid fa-moon" id="theme-icon"></i>
+                    </button>
+                    <button id="lang-toggle-btn" class="header-action-btn" style="padding: 8px 12px; background: rgba(0,0,0,0.05); border-radius: 8px;">
+                        <i class="fa-solid fa-language"></i>&nbsp;<span id="lang-indicator">العربية</span>
+                    </button>
                 </div>
             </header>
 
             <section class="explorer-view-wrapper">
                 <div class="explorer-toolbar">
                     <h2 id="explorer-current-title" class="explorer-view-title">All Files</h2>
-                    <div class="toolbar-actions">
-                        <div class="select-custom-wrapper">
-                            <select id="sort-strategy-select" class="select-custom-element">
-                                <option value="newest">Newest First</option>
-                                <option value="oldest">Oldest First</option>
-                                <option value="alphabetical">Alphabetical</option>
-                            </select>
-                            <i class="fa-solid fa-chevron-down select-arrow-icon"></i>
-                        </div>
-                    </div>
                 </div>
 
                 <div id="file-explorer-grid" class="file-explorer-grid layout-grid">
                     <div id="explorer-empty-state" class="explorer-empty-state hidden">
                         <div class="empty-state-icon-wrapper"><i class="fa-solid fa-folder-plus"></i></div>
-                        <h3 class="empty-state-title">No Files Found Here</h3>
-                        <p class="empty-state-subtitle">This folder is empty. Upload new files to secure them.</p>
+                        <h3 class="empty-state-title" id="empty-title">No Files Found Here</h3>
+                        <p class="empty-state-subtitle" id="empty-subtitle">This folder is empty. Upload new files to secure them.</p>
                     </div>
                 </div>
             </section>
@@ -113,24 +81,23 @@
     </div>
 
     <div id="modal-overlay-layer" class="modal-overlay-layer">
-        
         <div id="modal-auth-container" class="app-modal-window modal-auth-size hidden">
             <div class="modal-branding-header">
                 <i class="fa-solid fa-shield-halved brand-icon-auth"></i>
-                <h2 class="auth-modal-title">NebulaDrive Security</h2>
+                <h2 class="auth-modal-title">NFC GO Security</h2>
                 <p id="auth-modal-instruction-text" class="auth-modal-subtitle">Enter your security Master PIN to access your encrypted personal vault container.</p>
             </div>
             
             <form id="auth-execution-form">
                 <div id="auth-registration-fields-area" class="input-form-control hidden" style="margin-bottom:15px; text-align: left;">
-                    <label class="form-field-label">Set Account Owner Name</label>
-                    <input type="text" id="auth-reg-username" class="form-text-input" placeholder="e.g. John Doe" style="margin-bottom: 15px;" />
+                    <label class="form-field-label" id="lbl-username">Set Account Owner Name</label>
+                    <input type="text" id="auth-reg-username" class="form-text-input" placeholder="Name" style="margin-bottom: 15px;" />
                     
-                    <div class="legal-disclaimer-box" style="background: rgba(0,0,0,0.3); padding: 10px; border-radius: 8px; font-size: 11px; color: #94a3b8; border: 1px solid rgba(255,255,255,0.05); max-height: 80px; overflow-y: auto; margin-bottom: 10px; line-height: 1.4;">
-                        <strong>Terms & Disclaimer:</strong> By creating this vault, you understand that this is a localized, sandboxed zero-knowledge container. The developer/provider holds no responsibility for data loss, hardware damage, corruption, or unauthorized local device access. You are fully responsible for remembering your PIN.
+                    <div class="legal-disclaimer-box" id="legal-box" style="background: rgba(0,0,0,0.05); padding: 10px; border-radius: 8px; font-size: 11px; color: #64748b; border: 1px solid rgba(0,0,0,0.05); max-height: 80px; overflow-y: auto; margin-bottom: 10px; line-height: 1.4;">
+                        <strong>Terms & Disclaimer:</strong> By creating this vault, you understand that this is a localized, sandboxed zero-knowledge container. NFC GO holds no responsibility for data loss, damage, or unauthorized local device access. You are fully responsible for your PIN.
                     </div>
-                    <div style="font-size: 11px; color: #cbd5e1; text-align: center; width: 100%;">
-                        ⚠️ By continuing, you accept all terms, conditions, and liability exemptions.
+                    <div style="font-size: 11px; color: var(--text-muted); text-align: center; width: 100%; font-weight: 600;" id="legal-agree-text">
+                         By continuing, you accept all terms, conditions, and liability exemptions.
                     </div>
                 </div>
 
@@ -141,30 +108,30 @@
                     <input type="password" id="pin-char-4" class="pin-entry-box" maxlength="1" inputmode="numeric" autocomplete="off" />
                 </div>
 
-                <button type="submit" class="btn btn-primary btn-block">Unlock & Accept Terms</button>
+                <button type="submit" class="btn btn-primary btn-block" id="btn-unlock-text">Unlock & Accept Terms</button>
             </form>
         </div>
 
         <div id="modal-billing-subscription-container" class="app-modal-window modal-billing-size hidden">
             <div class="modal-window-header">
-                <h2 class="modal-window-title">Upgrade to NebulaDrive Tier Max</h2>
+                <h2 class="modal-window-title" id="bill-title">Upgrade to NFC GO PRO</h2>
                 <i class="fa-solid fa-xmark modal-close-trigger" id="billing-close-btn"></i>
             </div>
             <div class="modal-window-body">
                 <div class="billing-value-propositions">
-                    <div class="val-prop-item text-success"><i class="fa-solid fa-circle-check"></i> Expand Space to 16GB Storage</div>
-                    <div class="val-prop-item"><i class="fa-solid fa-circle-check"></i> Unlock Premium Routing Access</div>
+                    <div class="val-prop-item text-success"><i class="fa-solid fa-circle-check"></i> <span id="prop-1">Expand Space to 16GB Storage</span></div>
+                    <div class="val-prop-item"><i class="fa-solid fa-circle-check"></i> <span id="prop-2">Unlock Premium Routing Access</span></div>
                 </div>
                 <form id="billing-payment-simulation-form">
                     <div class="input-form-control">
-                        <label class="form-field-label">Dummy Credit Card Number</label>
+                        <label class="form-field-label" id="lbl-card">Dummy Credit Card Number</label>
                         <input type="text" class="form-text-input" placeholder="4000 1234 5678 9010" required />
                     </div>
-                    <button type="submit" class="btn btn-upgrade btn-block" style="margin-top:16px;">Authorize Upgrade</button>
+                    <button type="submit" class="btn btn-upgrade btn-block" style="margin-top:16px;" id="btn-auth-up">Authorize Upgrade</button>
                 </form>
             </div>
         </div>
-
     </div>
+
 </body>
 </html>
