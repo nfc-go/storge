@@ -1,0 +1,171 @@
+// 1. STORAGE SYSTEM
+var StorageEngine = {
+    files: [],
+    tier: "Free",
+    quota: 512 * 1024 * 1024,
+    init: function() {
+        this.files = JSON.parse(localStorage.getItem("nebula_files")) || [];
+        this.tier = localStorage.getItem("nebula_tier") || "Free";
+        this.quota = this.tier === "Pro" ? 16 * 1024 * 1024 * 1024 : 512 * 1024 * 1024;
+    },
+    save: function() {
+        localStorage.setItem("nebula_files", JSON.stringify(this.files));
+        localStorage.setItem("nebula_tier", this.tier);
+        if (window.UiEngine) window.UiEngine.render();
+    }
+};
+
+// 2. AUTH SECURITY
+var AuthEngine = {
+    isAuthed: false,
+    init: function() {
+        var pin = localStorage.getItem("nebula_pin");
+        document.getElementById("app-container").classList.add("blurred");
+        document.getElementById("modal-overlay-layer").classList.remove("hidden");
+        document.getElementById("modal-auth-container").classList.remove("hidden");
+        
+        if (!pin) {
+            document.getElementById("auth-registration-fields-area").classList.remove("hidden");
+        }
+        this.setupInputs();
+    },
+    setupInputs: function() {
+        var pins = [
+            document.getElementById("pin-char-1"), 
+            document.getElementById("pin-char-2"), 
+            document.getElementById("pin-char-3"), 
+            document.getElementById("pin-char-4")
+        ];
+        var self = this;
+        pins.forEach(function(input, index) {
+            if (!input) return;
+            input.addEventListener("input", function(e) {
+                if (e.target.value && index < 3) pins[index + 1].focus();
+                if (index === 3) self.verify();
+            });
+        });
+    },
+    verify: function() {
+        var pinVal = ["pin-char-1", "pin-char-2", "pin-char-3", "pin-char-4"].map(function(id) {
+            return document.getElementById(id).value;
+        }).join("");
+        
+        var stored = localStorage.getItem("nebula_pin");
+        
+        if (!stored) {
+            var name = document.getElementById("auth-reg-username").value || "User";
+            localStorage.setItem("nebula_pin", pinVal);
+            localStorage.setItem("nebula_profile_name", name);
+            this.success(name);
+        } else if (pinVal === stored) {
+            this.success(localStorage.getItem("nebula_profile_name"));
+        } else {
+            alert("Wrong PIN!");
+            ["pin-char-1", "pin-char-2", "pin-char-3", "pin-char-4"].forEach(function(id) {
+                document.getElementById(id).value = "";
+            });
+            document.getElementById("pin-char-1").focus();
+        }
+    },
+    success: function(name) {
+        this.isAuthed = true;
+        document.getElementById("app-container").classList.remove("blurred");
+        document.getElementById("modal-overlay-layer").classList.add("hidden");
+        document.getElementById("dropdown-user-name").textContent = name;
+        if (window.UiEngine) window.UiEngine.render();
+    }
+};
+
+// 3. UI GENERATOR
+var UiEngine = {
+    init: function() {
+        var self = this;
+        document.getElementById("sidebar-upload-btn").addEventListener("click", function() {
+            document.getElementById("sidebar-file-input").click();
+        });
+        document.getElementById("sidebar-file-input").addEventListener("change", function(e) {
+            self.upload(e.target.files);
+        });
+        document.getElementById("sidebar-upgrade-btn").addEventListener("click", function() {
+            document.getElementById("modal-overlay-layer").classList.remove("hidden");
+            document.getElementById("modal-billing-subscription-container").classList.remove("hidden");
+        });
+        document.querySelector(".modal-close-trigger").addEventListener("click", function() {
+            document.getElementById("modal-billing-subscription-container").classList.add("hidden");
+            document.getElementById("modal-overlay-layer").classList.add("hidden");
+        });
+        document.getElementById("billing-payment-simulation-form").addEventListener("submit", function(e) {
+            e.preventDefault();
+            StorageEngine.tier = "Pro";
+            StorageEngine.quota = 16 * 1024 * 1024 * 1024;
+            StorageEngine.save();
+            document.getElementById("modal-billing-subscription-container").classList.add("hidden");
+            document.getElementById("modal-overlay-layer").classList.add("hidden");
+            alert("Upgraded to PRO!");
+        });
+    },
+    upload: function(files) {
+        if (!files.length) return;
+        var file = files[0];
+        var reader = new FileReader();
+        reader.onload = function(e) {
+            StorageEngine.files.push({
+                name: file.name,
+                size: file.size,
+                type: file.type,
+                content: e.target.result
+            });
+            StorageEngine.save();
+        };
+        reader.readAsDataURL(file);
+    },
+    render: function() {
+        var grid = document.getElementById("file-explorer-grid");
+        if (!grid) return;
+        
+        grid.querySelectorAll(".explorer-asset-card").forEach(function(c) { 
+            c.remove(); 
+        });
+        
+        var used = StorageEngine.files.reduce(function(acc, f) { 
+            return acc + f.size; 
+        }, 0);
+        
+        document.getElementById("sidebar-storage-metrics").textContent = (used / (1024 * 1024)).toFixed(1) + " MB / " + (StorageEngine.quota / (1024 * 1024)).toFixed(1) + " MB";
+        document.getElementById("sidebar-storage-progress").style.width = Math.min((used / StorageEngine.quota) * 100, 100) + "%";
+        
+        if (StorageEngine.tier === "Pro") {
+            document.getElementById("sidebar-premium-badge").classList.remove("hidden");
+        }
+
+        if (StorageEngine.files.length === 0) {
+            document.getElementById("explorer-empty-state").classList.remove("hidden");
+            return;
+        }
+        document.getElementById("explorer-empty-state").classList.add("hidden");
+
+        StorageEngine.files.forEach(function(f) {
+            var card = document.createElement("div");
+            card.className = "explorer-asset-card";
+            
+            var previewContent = f.type.startsWith("image/") ? '<img src="' + f.content + '" style="width:100%;height:100%;object-fit:cover;">' : '<i class="fa-solid fa-file-lines" style="font-size:40px;"></i>';
+            
+            card.innerHTML = '<div class="card-preview-surface">' + previewContent + '</div>' +
+                '<div class="card-meta-container-block">' +
+                    '<div class="card-metadata-row">' +
+                        '<span class="asset-title-text">' + f.name + '</span>' +
+                        '<span class="asset-size-subtext">' + (f.size / 1024).toFixed(1) + ' KB</span>' +
+                    '</div>' +
+                '</div>';
+            grid.appendChild(card);
+        });
+    }
+};
+
+// RUN ALL SYSTEMS ONCE LOADED
+setTimeout(function() {
+    StorageEngine.init();
+    UiEngine.init();
+    AuthEngine.init();
+    UiEngine.render();
+}, 200);
