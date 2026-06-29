@@ -17,28 +17,28 @@
         <aside id="desktop-sidebar" class="desktop-sidebar">
             <div class="sidebar-brand">
                 <div class="brand-logo"><i class="fa-solid fa-cloud-bolt"></i></div>
-                <h1 class="brand-name" data-i18n="brandName">NebulaDrive</h1>
-                <span id="sidebar-premium-badge" class="premium-badge hidden" data-i18n="premium">PRO</span>
+                <h1 class="brand-name">NebulaDrive</h1>
+                <span id="sidebar-premium-badge" class="premium-badge hidden">PRO</span>
             </div>
             
             <button id="sidebar-upload-btn" class="btn btn-primary btn-block btn-upload">
                 <i class="fa-solid fa-plus"></i>
-                <span data-i18n="uploadNew">Upload New</span>
+                <span>Upload New</span>
                 <input type="file" id="sidebar-file-input" class="hidden-file-input" />
             </button>
             
             <nav class="sidebar-nav">
                 <a href="#" class="nav-link active" data-target="all">
-                    <i class="fa-solid fa-folder-open"></i><span data-i18n="navAllFiles">All Files</span>
+                    <i class="fa-solid fa-folder-open"></i><span>All Files</span>
                 </a>
                 <a href="#" class="nav-link" data-target="photos">
-                    <i class="fa-solid fa-image"></i><span data-i18n="navPhotos">Photos</span>
+                    <i class="fa-solid fa-image"></i><span>Photos</span>
                 </a>
                 <a href="#" class="nav-link" data-target="favorites">
-                    <i class="fa-solid fa-star"></i><span data-i18n="navFavorites">Favorites</span>
+                    <i class="fa-solid fa-star"></i><span>Favorites</span>
                 </a>
                 <a href="#" class="nav-link" data-target="trash">
-                    <i class="fa-solid fa-trash-can"></i><span data-i18n="navTrash">Trash</span>
+                    <i class="fa-solid fa-trash-can"></i><span>Trash</span>
                 </a>
             </nav>
             
@@ -46,14 +46,14 @@
                 <div class="storage-info">
                     <i class="fa-solid fa-hard-drive storage-icon"></i>
                     <div class="storage-text-details">
-                        <span class="storage-title" data-i18n="storageTitle">Cloud Storage</span>
+                        <span class="storage-title">Cloud Storage</span>
                         <span id="sidebar-storage-metrics" class="storage-metrics">0 MB / 512 MB</span>
                     </div>
                 </div>
                 <div class="progress-bar-container">
                     <div id="sidebar-storage-progress" class="progress-bar-fill"></div>
                 </div>
-                <button id="sidebar-upgrade-btn" class="btn btn-upgrade btn-block" data-i18n="upgradeStorageBtn">Upgrade Storage</button>
+                <button id="sidebar-upgrade-btn" class="btn btn-upgrade btn-block">Upgrade Storage</button>
             </div>
         </aside>
 
@@ -63,7 +63,7 @@
                     <div id="mobile-menu-toggle" class="mobile-menu-toggle"><i class="fa-solid fa-bars"></i></div>
                     <div class="search-wrapper">
                         <i class="fa-solid fa-magnifying-glass search-icon"></i>
-                        <input type="text" id="dashboard-search" class="search-input" data-i18n-placeholder="searchPlaceholder" placeholder="Search files..." />
+                        <input type="text" id="dashboard-search" class="search-input" placeholder="Search files..." />
                     </div>
                 </div>
                 
@@ -76,11 +76,11 @@
                         <div class="dropdown-menu-panel">
                             <div class="dropdown-user-info">
                                 <div id="dropdown-user-name" class="user-display-name">Guest Workspace</div>
-                                <div class="user-display-tier" data-i18n="tierFree">Free Tier Plan</div>
+                                <div class="user-display-tier">Free Tier Plan</div>
                             </div>
                             <hr class="dropdown-divider" />
-                            <button id="dropdown-lock-link" class="dropdown-item"><i class="fa-solid fa-lock"></i><span data-i18n="profileLock">Lock Vault</span></button>
-                            <button id="dropdown-logout-link" class="dropdown-item"><i class="fa-solid fa-arrow-right-from-bracket"></i><span data-i18n="profileLogout">Log Out</span></button>
+                            <button id="dropdown-lock-link" class="dropdown-item"><i class="fa-solid fa-lock"></i><span>Lock Vault</span></button>
+                            <button id="dropdown-logout-link" class="dropdown-item"><i class="fa-solid fa-arrow-right-from-bracket"></i><span>Log Out</span></button>
                         </div>
                     </div>
                 </div>
@@ -88,19 +88,15 @@
 
             <section class="explorer-view-wrapper">
                 <div class="explorer-toolbar">
-                    <h2 id="explorer-current-title" class="explorer-view-title" data-i18n="navAllFiles">All Files</h2>
+                    <h2 id="explorer-current-title" class="explorer-view-title">All Files</h2>
                     <div class="toolbar-actions">
                         <div class="select-custom-wrapper">
                             <select id="sort-strategy-select" class="select-custom-element">
-                                <option value="newest" data-i18n="sortNewest">Newest First</option>
-                                <option value="oldest" data-i18n="sortOldest">Oldest First</option>
-                                <option value="alphabetical" data-i18n="sortAlpha">Alphabetical</option>
+                                <option value="newest">Newest First</option>
+                                <option value="oldest">Oldest First</option>
+                                <option value="alphabetical">Alphabetical</option>
                             </select>
                             <i class="fa-solid fa-chevron-down select-arrow-icon"></i>
-                        </div>
-                        <div class="view-toggle-group">
-                            <button id="toggle-grid-view" class="view-btn active"><i class="fa-solid fa-grip"></i></button>
-                            <button id="toggle-list-view" class="view-btn"><i class="fa-solid fa-list"></i></button>
                         </div>
                     </div>
                 </div>
@@ -108,23 +104,12 @@
                 <div id="file-explorer-grid" class="file-explorer-grid layout-grid">
                     <div id="explorer-empty-state" class="explorer-empty-state hidden">
                         <div class="empty-state-icon-wrapper"><i class="fa-solid fa-folder-plus"></i></div>
-                        <h3 class="empty-state-title" data-i18n="emptyStateTitle">No Files Found Here</h3>
-                        <p class="empty-state-subtitle" data-i18n="emptyStateSubtitle">This sandboxed folder slice is empty. Ingest and upload new files to secure them inside your localized browser cache memory container.</p>
+                        <h3 class="empty-state-title">No Files Found Here</h3>
+                        <p class="empty-state-subtitle">This folder is empty. Upload new files to secure them.</p>
                     </div>
                 </div>
             </section>
         </main>
-
-        <nav class="mobile-bottom-nav">
-            <a href="#" class="mobile-nav-link active" data-target="all"><i class="fa-solid fa-folder"></i><span data-i18n="navAllFiles">Files</span></a>
-            <a href="#" class="mobile-nav-link" data-target="photos"><i class="fa-solid fa-image"></i><span data-i18n="navPhotos">Photos</span></a>
-            <div class="mobile-nav-action-center">
-                <div id="mobile-floating-upload-btn" class="mobile-floating-btn"><i class="fa-solid fa-plus"></i></div>
-                <input type="file" id="mobile-file-input" class="hidden-file-input" />
-            </div>
-            <a href="#" class="mobile-nav-link" data-target="favorites"><i class="fa-solid fa-star"></i><span data-i18n="navFavorites">Favs</span></a>
-            <a href="#" class="mobile-nav-link" data-target="trash"><i class="fa-solid fa-trash-can"></i><span data-i18n="navTrash">Trash</span></a>
-        </nav>
     </div>
 
     <div id="modal-overlay-layer" class="modal-overlay-layer">
@@ -132,14 +117,21 @@
         <div id="modal-auth-container" class="app-modal-window modal-auth-size hidden">
             <div class="modal-branding-header">
                 <i class="fa-solid fa-shield-halved brand-icon-auth"></i>
-                <h2 class="auth-modal-title" data-i18n="authTitle">NebulaDrive Security</h2>
-                <p id="auth-modal-instruction-text" class="auth-modal-subtitle" data-i18n="authSubtitleEnter">Enter your security Master PIN to access your encrypted personal vault container.</p>
+                <h2 class="auth-modal-title">NebulaDrive Security</h2>
+                <p id="auth-modal-instruction-text" class="auth-modal-subtitle">Enter your security Master PIN to access your encrypted personal vault container.</p>
             </div>
             
             <form id="auth-execution-form">
-                <div id="auth-registration-fields-area" class="input-form-control hidden" style="margin-bottom:20px;">
-                    <label class="form-field-label">Set Account Owner Profile Name</label>
-                    <input type="text" id="auth-reg-username" class="form-text-input" placeholder="e.g. Captain Anonymous" />
+                <div id="auth-registration-fields-area" class="input-form-control hidden" style="margin-bottom:15px; text-align: left;">
+                    <label class="form-field-label">Set Account Owner Name</label>
+                    <input type="text" id="auth-reg-username" class="form-text-input" placeholder="e.g. John Doe" style="margin-bottom: 15px;" />
+                    
+                    <div class="legal-disclaimer-box" style="background: rgba(0,0,0,0.3); padding: 10px; border-radius: 8px; font-size: 11px; color: #94a3b8; border: 1px solid rgba(255,255,255,0.05); max-height: 80px; overflow-y: auto; margin-bottom: 10px; line-height: 1.4;">
+                        <strong>Terms & Disclaimer:</strong> By creating this vault, you understand that this is a localized, sandboxed zero-knowledge container. The developer/provider holds no responsibility for data loss, hardware damage, corruption, or unauthorized local device access. You are fully responsible for remembering your PIN.
+                    </div>
+                    <div style="font-size: 11px; color: #cbd5e1; text-align: center; width: 100%;">
+                        ⚠️ By continuing, you accept all terms, conditions, and liability exemptions.
+                    </div>
                 </div>
 
                 <div class="auth-pin-display-group">
@@ -149,43 +141,26 @@
                     <input type="password" id="pin-char-4" class="pin-entry-box" maxlength="1" inputmode="numeric" autocomplete="off" />
                 </div>
 
-                <div id="auth-error-feedback" class="auth-error-feedback hidden">
-                    <i class="fa-solid fa-circle-exclamation"></i>
-                    <span id="auth-error-message-text">Invalid Pin Encountered</span>
-                </div>
-
-                <button type="submit" class="btn btn-primary btn-block" data-i18n="authBtnSubmit">Unlock Vault Container</button>
+                <button type="submit" class="btn btn-primary btn-block">Unlock & Accept Terms</button>
             </form>
         </div>
 
         <div id="modal-billing-subscription-container" class="app-modal-window modal-billing-size hidden">
             <div class="modal-window-header">
-                <h2 class="modal-window-title" data-i18n="billingTitle">Upgrade to NebulaDrive Tier Max</h2>
-                <i class="fa-solid fa-xmark modal-close-trigger"></i>
+                <h2 class="modal-window-title">Upgrade to NebulaDrive Tier Max</h2>
+                <i class="fa-solid fa-xmark modal-close-trigger" id="billing-close-btn"></i>
             </div>
             <div class="modal-window-body">
                 <div class="billing-value-propositions">
-                    <div class="val-prop-item text-success"><i class="fa-solid fa-circle-check"></i> Expand Sandbox Memory Allocation from 512MB to 16GB Storage</div>
-                    <div class="val-prop-item"><i class="fa-solid fa-circle-check"></i> Unlock Full Unrestricted Media Content Image Assets Previews</div>
-                    <div class="val-prop-item"><i class="fa-solid fa-circle-check"></i> High Priority Network Data Packages Stream Routing Access</div>
+                    <div class="val-prop-item text-success"><i class="fa-solid fa-circle-check"></i> Expand Space to 16GB Storage</div>
+                    <div class="val-prop-item"><i class="fa-solid fa-circle-check"></i> Unlock Premium Routing Access</div>
                 </div>
-                
                 <form id="billing-payment-simulation-form">
                     <div class="input-form-control">
                         <label class="form-field-label">Dummy Credit Card Number</label>
                         <input type="text" class="form-text-input" placeholder="4000 1234 5678 9010" required />
                     </div>
-                    <div class="form-fields-row-split-grid">
-                        <div class="input-form-control">
-                            <label class="form-field-label">Expiration Date</label>
-                            <input type="text" class="form-text-input" placeholder="MM/YY" required />
-                        </div>
-                        <div class="input-form-control">
-                            <label class="form-field-label">CVV Secure Key</label>
-                            <input type="password" class="form-text-input" placeholder="***" maxlength="3" required />
-                        </div>
-                    </div>
-                    <button type="submit" id="billing-submit-payment-btn" class="btn btn-upgrade btn-block" style="margin-top:16px;" data-i18n="billBtnSubmit">Authorize Premium Sandbox Payment Simulation</button>
+                    <button type="submit" class="btn btn-upgrade btn-block" style="margin-top:16px;">Authorize Upgrade</button>
                 </form>
             </div>
         </div>
