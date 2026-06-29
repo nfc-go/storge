@@ -1,31 +1,49 @@
-// 1. STORAGE SYSTEM
+// FUNCTION TO GET WORKSPACE ID FROM URL
+function getWorkspaceId() {
+    var match = window.location.hash.match(/workspace=([^&]+)/);
+    return match ? match[1] : "default_vault";
+}
+
+var currentWS = getWorkspaceId();
+
+// 1. STORAGE SYSTEM (DYNAMIC PER WORKSPACE)
 var StorageEngine = {
     files: [],
     tier: "Free",
     quota: 512 * 1024 * 1024,
     init: function() {
-        this.files = JSON.parse(localStorage.getItem("nebula_files")) || [];
-        this.tier = localStorage.getItem("nebula_tier") || "Free";
+        currentWS = getWorkspaceId(); // Refresh ID dynamically
+        this.files = JSON.parse(localStorage.getItem(currentWS + "_files")) || [];
+        this.tier = localStorage.getItem(currentWS + "_tier") || "Free";
         this.quota = this.tier === "Pro" ? 16 * 1024 * 1024 * 1024 : 512 * 1024 * 1024;
     },
     save: function() {
-        localStorage.setItem("nebula_files", JSON.stringify(this.files));
-        localStorage.setItem("nebula_tier", this.tier);
+        localStorage.setItem(currentWS + "_files", JSON.stringify(this.files));
+        localStorage.setItem(currentWS + "_tier", this.tier);
         if (window.UiEngine) window.UiEngine.render();
     }
 };
 
-// 2. AUTH SECURITY
+// 2. AUTH SECURITY (DYNAMIC PER WORKSPACE)
 var AuthEngine = {
     isAuthed: false,
     init: function() {
-        var pin = localStorage.getItem("nebula_pin");
+        currentWS = getWorkspaceId();
+        var pin = localStorage.getItem(currentWS + "_pin");
+        
         document.getElementById("app-container").classList.add("blurred");
         document.getElementById("modal-overlay-layer").classList.remove("hidden");
         document.getElementById("modal-auth-container").classList.remove("hidden");
         
+        // Reset inputs and registration fields visibility
+        document.getElementById("auth-registration-fields-area").classList.add("hidden");
+        ["pin-char-1", "pin-char-2", "pin-char-3", "pin-char-4"].forEach(function(id) {
+            document.getElementById(id).value = "";
+        });
+
         if (!pin) {
             document.getElementById("auth-registration-fields-area").classList.remove("hidden");
+            document.getElementById("auth-reg-username").value = "";
         }
         this.setupInputs();
     },
@@ -39,7 +57,12 @@ var AuthEngine = {
         var self = this;
         pins.forEach(function(input, index) {
             if (!input) return;
-            input.addEventListener("input", function(e) {
+            // Unbind old events to prevent duplicate triggers across workspace updates
+            var newInput = input.cloneNode(true);
+            input.parentNode.replaceChild(newInput, input);
+            pins[index] = newInput;
+            
+            newInput.addEventListener("input", function(e) {
                 if (e.target.value && index < 3) pins[index + 1].focus();
                 if (index === 3) self.verify();
             });
@@ -50,17 +73,17 @@ var AuthEngine = {
             return document.getElementById(id).value;
         }).join("");
         
-        var stored = localStorage.getItem("nebula_pin");
+        var stored = localStorage.getItem(currentWS + "_pin");
         
         if (!stored) {
             var name = document.getElementById("auth-reg-username").value || "User";
-            localStorage.setItem("nebula_pin", pinVal);
-            localStorage.setItem("nebula_profile_name", name);
+            localStorage.setItem(currentWS + "_pin", pinVal);
+            localStorage.setItem(currentWS + "_profile_name", name);
             this.success(name);
         } else if (pinVal === stored) {
-            this.success(localStorage.getItem("nebula_profile_name"));
+            this.success(localStorage.getItem(currentWS + "_profile_name"));
         } else {
-            alert("Wrong PIN!");
+            alert("Wrong PIN for this Vault!");
             ["pin-char-1", "pin-char-2", "pin-char-3", "pin-char-4"].forEach(function(id) {
                 document.getElementById(id).value = "";
             });
@@ -80,6 +103,14 @@ var AuthEngine = {
 var UiEngine = {
     init: function() {
         var self = this;
+        
+        // Listen for URL hash changes to swap workspaces instantly without reload
+        window.addEventListener("hashchange", function() {
+            StorageEngine.init();
+            AuthEngine.init();
+            self.render();
+        });
+
         document.getElementById("sidebar-upload-btn").addEventListener("click", function() {
             document.getElementById("sidebar-file-input").click();
         });
@@ -101,7 +132,7 @@ var UiEngine = {
             StorageEngine.save();
             document.getElementById("modal-billing-subscription-container").classList.add("hidden");
             document.getElementById("modal-overlay-layer").classList.add("hidden");
-            alert("Upgraded to PRO!");
+            alert("Upgraded to PRO for this workspace!");
         });
     },
     upload: function(files) {
@@ -136,6 +167,8 @@ var UiEngine = {
         
         if (StorageEngine.tier === "Pro") {
             document.getElementById("sidebar-premium-badge").classList.remove("hidden");
+        } else {
+            document.getElementById("sidebar-premium-badge").classList.add("hidden");
         }
 
         if (StorageEngine.files.length === 0) {
