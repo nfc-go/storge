@@ -6,13 +6,13 @@ function getWorkspaceId() {
 
 var currentWS = getWorkspaceId();
 
-// 1. STORAGE SYSTEM (DYNAMIC PER WORKSPACE)
+// 1. STORAGE SYSTEM
 var StorageEngine = {
     files: [],
     tier: "Free",
     quota: 512 * 1024 * 1024,
     init: function() {
-        currentWS = getWorkspaceId(); // Refresh ID dynamically
+        currentWS = getWorkspaceId(); 
         this.files = JSON.parse(localStorage.getItem(currentWS + "_files")) || [];
         this.tier = localStorage.getItem(currentWS + "_tier") || "Free";
         this.quota = this.tier === "Pro" ? 16 * 1024 * 1024 * 1024 : 512 * 1024 * 1024;
@@ -24,7 +24,7 @@ var StorageEngine = {
     }
 };
 
-// 2. AUTH SECURITY (DYNAMIC PER WORKSPACE)
+// 2. AUTH SECURITY
 var AuthEngine = {
     isAuthed: false,
     init: function() {
@@ -35,7 +35,6 @@ var AuthEngine = {
         document.getElementById("modal-overlay-layer").classList.remove("hidden");
         document.getElementById("modal-auth-container").classList.remove("hidden");
         
-        // Reset inputs and registration fields visibility
         document.getElementById("auth-registration-fields-area").classList.add("hidden");
         ["pin-char-1", "pin-char-2", "pin-char-3", "pin-char-4"].forEach(function(id) {
             document.getElementById(id).value = "";
@@ -57,22 +56,30 @@ var AuthEngine = {
         var self = this;
         pins.forEach(function(input, index) {
             if (!input) return;
-            // Unbind old events to prevent duplicate triggers across workspace updates
-            var newInput = input.cloneNode(true);
-            input.parentNode.replaceChild(newInput, input);
-            pins[index] = newInput;
             
-            newInput.addEventListener("input", function(e) {
+            // Re-bind fresh events smoothly
+            input.oninput = function(e) {
                 if (e.target.value && index < 3) pins[index + 1].focus();
                 if (index === 3) self.verify();
-            });
+            };
         });
+
+        // Setup Submit Form for Click or Enter Button
+        document.getElementById("auth-execution-form").onsubmit = function(e) {
+            e.preventDefault();
+            self.verify();
+        };
     },
     verify: function() {
         var pinVal = ["pin-char-1", "pin-char-2", "pin-char-3", "pin-char-4"].map(function(id) {
             return document.getElementById(id).value;
         }).join("");
         
+        if(pinVal.length < 4) {
+            alert("Please enter a 4-digit PIN");
+            return;
+        }
+
         var stored = localStorage.getItem(currentWS + "_pin");
         
         if (!stored) {
@@ -94,46 +101,54 @@ var AuthEngine = {
         this.isAuthed = true;
         document.getElementById("app-container").classList.remove("blurred");
         document.getElementById("modal-overlay-layer").classList.add("hidden");
+        document.getElementById("modal-auth-container").classList.add("hidden");
         document.getElementById("dropdown-user-name").textContent = name;
-        if (window.UiEngine) window.UiEngine.render();
+        UiEngine.render();
     }
 };
 
-// 3. UI GENERATOR
+// 3. UI GENERATOR AND BUTTONS FIX
 var UiEngine = {
     init: function() {
         var self = this;
         
-        // Listen for URL hash changes to swap workspaces instantly without reload
         window.addEventListener("hashchange", function() {
             StorageEngine.init();
             AuthEngine.init();
             self.render();
         });
 
-        document.getElementById("sidebar-upload-btn").addEventListener("click", function() {
+        // Fixed Upload Button Trigger
+        document.getElementById("sidebar-upload-btn").onclick = function() {
             document.getElementById("sidebar-file-input").click();
-        });
-        document.getElementById("sidebar-file-input").addEventListener("change", function(e) {
+        };
+        
+        document.getElementById("sidebar-file-input").onchange = function(e) {
             self.upload(e.target.files);
-        });
-        document.getElementById("sidebar-upgrade-btn").addEventListener("click", function() {
+        };
+
+        // Fixed Upgrade Popup Open Trigger
+        document.getElementById("sidebar-upgrade-btn").onclick = function() {
             document.getElementById("modal-overlay-layer").classList.remove("hidden");
             document.getElementById("modal-billing-subscription-container").classList.remove("hidden");
-        });
-        document.querySelector(".modal-close-trigger").addEventListener("click", function() {
+        };
+
+        // Fixed Upgrade Popup Close Trigger
+        document.getElementById("billing-close-btn").onclick = function() {
             document.getElementById("modal-billing-subscription-container").classList.add("hidden");
             document.getElementById("modal-overlay-layer").classList.add("hidden");
-        });
-        document.getElementById("billing-payment-simulation-form").addEventListener("submit", function(e) {
+        };
+
+        // Fixed Payment Simulated Submit
+        document.getElementById("billing-payment-simulation-form").onsubmit = function(e) {
             e.preventDefault();
             StorageEngine.tier = "Pro";
             StorageEngine.quota = 16 * 1024 * 1024 * 1024;
             StorageEngine.save();
             document.getElementById("modal-billing-subscription-container").classList.add("hidden");
             document.getElementById("modal-overlay-layer").classList.add("hidden");
-            alert("Upgraded to PRO for this workspace!");
-        });
+            alert("Upgraded to PRO successfully!");
+        };
     },
     upload: function(files) {
         if (!files.length) return;
@@ -200,5 +215,4 @@ setTimeout(function() {
     StorageEngine.init();
     UiEngine.init();
     AuthEngine.init();
-    UiEngine.render();
 }, 200);
