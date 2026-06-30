@@ -12,9 +12,12 @@
 <body class="light-mode">
 
     <div id="app-container" class="app-container blurred">
+        <!-- Top Luxury Header -->
         <header class="dashboard-header">
             <div class="header-brand-block">
-                <div class="brand-logo"><i class="fa-solid fa-bolt"></i></div>
+                <div class="brand-logo-custom">
+                    <img src="processed_logo.png" alt="NFC GO Logo" class="custom-logo-img">
+                </div>
                 <span class="brand-title">NFC GO</span>
                 <span id="sidebar-premium-badge" class="premium-badge hidden">PRO</span>
             </div>
@@ -24,6 +27,7 @@
             </div>
         </header>
 
+        <!-- Dynamic Main Workspace Grid -->
         <main class="main-content">
             <section class="explorer-view-wrapper">
                 <div class="explorer-toolbar">
@@ -31,6 +35,7 @@
                     <div id="sidebar-storage-metrics" class="storage-metrics">0.0 MB / 512.0 MB</div>
                 </div>
 
+                <!-- Progress Bar Top Accent -->
                 <div class="progress-bar-container">
                     <div id="sidebar-storage-progress" class="progress-bar-fill"></div>
                 </div>
@@ -45,6 +50,7 @@
             </section>
         </main>
 
+        <!-- Premium Bottom Navigation Bar -->
         <input type="file" id="sidebar-file-input" class="hidden-file-input" accept="image/*,video/*,application/*" />
         <nav class="bottom-navigation-bar">
             <button class="nav-tab-item active" data-target="all">
@@ -56,6 +62,7 @@
                 <span class="tab-label txt-photos">Photos</span>
             </button>
             
+            <!-- Central Upload Glowing Trigger Button -->
             <div class="central-action-container">
                 <button id="sidebar-upload-btn" class="central-glowing-btn">
                     <i class="fa-solid fa-plus"></i>
@@ -66,18 +73,22 @@
                 <i class="fa-solid fa-video"></i>
                 <span class="tab-label txt-videos">Videos</span>
             </button>
-            <button id="sidebar-upgrade-btn" class="nav-tab-item tab-upgrade-accent">
-                <i class="fa-solid fa-crown"></i>
-                <span class="tab-label txt-upgrade-btn">Upgrade</span>
+            <button class="nav-tab-item" data-target="favorites">
+                <i class="fa-solid fa-heart" style="color: #ef4444;"></i>
+                <span class="tab-label txt-favs">Favorites</span>
             </button>
         </nav>
     </div>
 
+    <!-- Modals Overlay Layer Stack -->
     <div id="modal-overlay-layer" class="modal-overlay-layer">
         
+        <!-- Auth View Container Gate -->
         <div id="modal-auth-container" class="app-modal-window modal-auth-size hidden">
             <div class="modal-branding-header">
-                <i class="fa-solid fa-shield-halved brand-icon-auth"></i>
+                <div class="auth-logo-center-wrapper">
+                    <img src="processed_logo.png" alt="NFC GO Logo" style="height: 60px; object-fit: contain; margin-bottom: 10px;">
+                </div>
                 <h2 class="auth-modal-title">NFC GO System</h2>
                 <p id="auth-modal-instruction-text" class="auth-modal-subtitle">Verify your identity PIN keycode to establish dynamic connection.</p>
             </div>
@@ -106,6 +117,7 @@
             </form>
         </div>
 
+        <!-- Premium Code Subscription Modal -->
         <div id="modal-billing-subscription-container" class="app-modal-window modal-billing-size hidden">
             <div class="modal-window-header">
                 <h2 class="modal-window-title" id="bill-title">Upgrade to NFC GO PRO Space</h2>
@@ -128,6 +140,23 @@
                 </form>
             </div>
         </div>
+
+        <!-- Luxury Asset Preview Gallery Lightbox (المعرض الذكي المضاف) -->
+        <div id="modal-preview-lightbox" class="lightbox-modal hidden">
+            <header class="lightbox-header">
+                <span id="lightbox-file-title" class="lightbox-title">File Preview</span>
+                <i class="fa-solid fa-xmark lightbox-close" id="lightbox-close-btn"></i>
+            </header>
+            <div class="lightbox-body">
+                <div id="lightbox-media-container" class="lightbox-media-surface"></div>
+            </div>
+            <footer class="lightbox-footer-toolbar">
+                <button id="lightbox-fav-toggle-btn" class="lightbox-action-btn btn-fav"><i class="fa-solid fa-heart"></i> <span class="txt-lightbox-fav">Favorite</span></button>
+                <button id="lightbox-download-btn" class="lightbox-action-btn btn-dl"><i class="fa-solid fa-cloud-arrow-down"></i> <span class="txt-lightbox-dl">Download</span></button>
+                <button id="lightbox-delete-btn" class="lightbox-action-btn btn-del"><i class="fa-solid fa-trash-can"></i> <span class="txt-lightbox-del">Delete</span></button>
+            </footer>
+        </div>
+
     </div>
 
 </body>
