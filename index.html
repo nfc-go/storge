@@ -2,43 +2,74 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>رفع الملفات إلى R2</title>
+    <title>NFC GO - إدارة الملفات</title>
+    <script src="https://sdk.amazonaws.com/js/aws-sdk-2.1000.0.min.js"></script>
+    <style>
+        body { font-family: sans-serif; padding: 20px; background: #f9f9f9; }
+        .file-card { background: white; padding: 15px; margin: 10px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); display: flex; justify-content: space-between; align-items: center; }
+        .btn { padding: 8px 15px; border-radius: 5px; cursor: pointer; border: none; background: #007bff; color: white; }
+        #filesContainer { margin-top: 20px; }
+    </style>
 </head>
 <body>
-    <h2>نظام رفع الملفات السحابي</h2>
+
+    <header><h1>NFC GO</h1></header>
+    
     <input type="file" id="fileInput">
-    <button onclick="uploadFile()">رفع الملف</button>
+    <button class="btn" onclick="uploadFile()">رفع الملف</button>
     <p id="status"></p>
 
-    <script src="https://sdk.amazonaws.com/js/aws-sdk-2.1000.0.min.js"></script>
-    <script>
-        // ضع المفاتيح هنا مرة واحدة فقط
-        const R2_ENDPOINT = "https://24d79d5b07f5051f2f201553fcbebbce.r2.cloudflarestorage.com";
-        const ACCESS_KEY_ID = "a2cbca47e0a95c1ed288709f91dc826b";
-        const SECRET_ACCESS_KEY = "303b2c8ecc60d3c7e1d66f7bdd4f42af61421241b5861aca837869db73a43db2";
-        const BUCKET_NAME = "nfc-files";
+    <div id="filesContainer"></div>
 
+    <script>
+        // إعداداتك (قم بوضع بياناتك هنا مرة واحدة فقط)
+        const R2_CONFIG = {
+            endpoint: "https://24d79d5b07f5051f2f201553fcbebbce.r2.cloudflarestorage.com",
+            accessKeyId: "a2cbca47e0a95c1ed288709f91dc826b",
+            secretAccessKey: "303b2c8ecc60d3c7e1d66f7bdd4f42af61421241b5861aca837869db73a43db2",
+            bucket: "nfc-files"
+        };
+
+        const s3 = new AWS.S3({
+            endpoint: R2_CONFIG.endpoint,
+            accessKeyId: R2_CONFIG.accessKeyId,
+            secretAccessKey: R2_CONFIG.secretAccessKey,
+            signatureVersion: 'v4',
+            region: 'auto'
+        });
+
+        // دالة الرفع
         async function uploadFile() {
             const file = document.getElementById('fileInput').files[0];
-            const status = document.getElementById('status');
             if (!file) return alert("اختر ملفاً");
-
-            const s3 = new AWS.S3({
-                endpoint: R2_ENDPOINT,
-                accessKeyId: ACCESS_KEY_ID,
-                secretAccessKey: SECRET_ACCESS_KEY,
-                signatureVersion: 'v4',
-                region: 'auto'
-            });
-
-            status.innerText = "جاري الرفع...";
+            
+            document.getElementById('status').innerText = "جاري الرفع...";
             try {
-                await s3.putObject({ Bucket: BUCKET_NAME, Key: file.name, Body: file }).promise();
-                status.innerText = "تم الرفع بنجاح!";
+                await s3.putObject({ Bucket: R2_CONFIG.bucket, Key: file.name, Body: file }).promise();
+                document.getElementById('status').innerText = "تم الرفع بنجاح!";
+                listFiles(); // تحديث القائمة بعد الرفع
             } catch (err) {
-                status.innerText = "خطأ: تأكد من إعدادات CORS في Cloudflare.";
+                document.getElementById('status').innerText = "خطأ في الرفع.";
             }
         }
+
+        // دالة عرض الملفات
+        async function listFiles() {
+            try {
+                const data = await s3.listObjects({ Bucket: R2_CONFIG.bucket }).promise();
+                const container = document.getElementById('filesContainer');
+                container.innerHTML = '<h3>الملفات المرفوعة:</h3>';
+                data.Contents.forEach(file => {
+                    container.innerHTML += `
+                        <div class="file-card">
+                            <span>${file.Key}</span>
+                            <button class="btn" onclick="alert('الرابط: ${R2_CONFIG.endpoint}/${R2_CONFIG.bucket}/${file.Key}')">تحميل</button>
+                        </div>`;
+                });
+            } catch (e) { console.log(e); }
+        }
+
+        listFiles(); // عرض الملفات عند فتح الصفحة
     </script>
 </body>
 </html>
