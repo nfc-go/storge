@@ -1,42 +1,52 @@
 <!DOCTYPE html>
-<html lang="en" dir="ltr">
+<html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>NFC GO - Premium Vault</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
     <script src="https://sdk.amazonaws.com/js/aws-sdk-2.1000.0.min.js"></script>
+    <style>
+        :root { --bg: #f9f9f9; --text: #333; --nav-bg: #fff; }
+        .dark-mode { --bg: #1a1a1a; --text: #fff; --nav-bg: #2d2d2d; }
+        body { background: var(--bg); color: var(--text); font-family: sans-serif; transition: 0.3s; margin: 0; }
+        
+        .header { display: flex; justify-content: space-between; padding: 20px; align-items: center; }
+        .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; padding: 20px; }
+        .file-card { background: var(--nav-bg); padding: 15px; border-radius: 12px; text-align: center; }
+        
+        .bottom-nav { position: fixed; bottom: 0; width: 100%; display: flex; justify-content: space-around; padding: 15px; background: var(--nav-bg); box-shadow: 0 -2px 10px rgba(0,0,0,0.1); }
+        .plus-btn { width: 60px; height: 60px; background: #007bff; border-radius: 50%; color: white; border: none; font-size: 24px; margin-top: -35px; box-shadow: 0 4px 10px rgba(0,123,255,0.4); }
+        .hidden { display: none; }
+    </style>
 </head>
-<body class="light-mode">
+<body>
 
-    <div id="app-container" class="app-container">
-        <header class="dashboard-header">
-            <div class="header-brand-block">
-                <span class="brand-title">NFC GO</span>
-            </div>
-        </header>
+    <header class="header">
+        <button onclick="toggleTheme()"><i class="fa-solid fa-moon"></i></button>
+        <h2>NFC GO</h2>
+        <button onclick="document.getElementById('upgradeModal').classList.toggle('hidden')"><i class="fa-solid fa-crown"></i></button>
+    </header>
 
-        <main class="main-content">
-            <section class="explorer-view-wrapper">
-                <div id="file-explorer-grid" class="file-explorer-grid">
-                    </div>
-            </section>
-        </main>
+    <div id="file-grid" class="grid"></div>
 
-        <input type="file" id="sidebar-file-input" class="hidden" style="display:none;" />
-        <nav class="bottom-navigation-bar">
-            <div class="central-action-container">
-                <button id="sidebar-upload-btn" class="central-glowing-btn">
-                    <i class="fa-solid fa-plus"></i>
-                </button>
-            </div>
-        </nav>
+    <nav class="bottom-nav">
+        <button onclick="filterFiles('all')"><i class="fa-solid fa-folder"></i></button>
+        <button onclick="filterFiles('photos')"><i class="fa-solid fa-image"></i></button>
+        <button class="plus-btn" onclick="document.getElementById('fileInput').click()">+</button>
+        <button onclick="filterFiles('videos')"><i class="fa-solid fa-video"></i></button>
+        <button onclick="showFavorites()"><i class="fa-solid fa-heart"></i></button>
+    </nav>
+
+    <input type="file" id="fileInput" class="hidden" onchange="uploadFile(this)">
+    
+    <div id="upgradeModal" class="hidden" style="position:fixed; top:20%; background:white; color:black; padding:20px; width:80%; border-radius:20px; left:10%;">
+        <h3>ترقية المساحة</h3>
+        <input type="text" id="promoCode" placeholder="كود التفعيل">
+        <button onclick="verifyCode()">تفعيل</button>
     </div>
 
     <script>
-        // إعدادات الاتصال بـ R2
+        // ضع مفاتيحك هنا (لا تنسى تغييرها للأمان)
         const R2_CONFIG = {
             endpoint: "https://24d79d5b07f5051f2f201553fcbebbce.r2.cloudflarestorage.com",
             accessKeyId: "a2cbca47e0a95c1ed288709f91dc826b",
@@ -44,46 +54,44 @@
             bucket: "nfc-files"
         };
 
-        const s3 = new AWS.S3({
-            endpoint: R2_CONFIG.endpoint,
-            accessKeyId: R2_CONFIG.accessKeyId,
-            secretAccessKey: R2_CONFIG.secretAccessKey,
-            signatureVersion: 'v4',
-            region: 'auto'
-        });
+        const s3 = new AWS.S3({ ...R2_CONFIG, signatureVersion: 'v4', region: 'auto' });
 
-        // تشغيل زر الرفع
-        document.getElementById('sidebar-upload-btn').addEventListener('click', () => {
-            document.getElementById('sidebar-file-input').click();
-        });
+        function toggleTheme() { document.body.classList.toggle('dark-mode'); }
 
-        document.getElementById('sidebar-file-input').addEventListener('change', async (e) => {
-            const file = e.target.files[0];
-            if (!file) return;
-            
-            try {
-                await s3.putObject({ Bucket: R2_CONFIG.bucket, Key: file.name, Body: file }).promise();
-                alert("تم الرفع بنجاح!");
-                loadFiles(); 
-            } catch (err) {
-                alert("فشل الرفع، تأكد من إعدادات CORS.");
-            }
-        });
+        async function uploadFile(input) {
+            const file = input.files[0];
+            await s3.putObject({ Bucket: R2_CONFIG.bucket, Key: file.name, Body: file }).promise();
+            alert("تم الرفع بنجاح!");
+            loadFiles();
+        }
 
-        // دالة جلب الملفات
         async function loadFiles() {
-            const grid = document.getElementById('file-explorer-grid');
-            try {
-                const data = await s3.listObjects({ Bucket: R2_CONFIG.bucket }).promise();
-                grid.innerHTML = ''; 
-                data.Contents.forEach(file => {
-                    grid.innerHTML += `
-                        <div class="file-card">
-                            <p>${file.Key}</p>
-                            <button onclick="window.open('${R2_CONFIG.endpoint}/${R2_CONFIG.bucket}/${file.Key}')">تحميل</button>
-                        </div>`;
-                });
-            } catch (e) { console.error(e); }
+            const data = await s3.listObjects({ Bucket: R2_CONFIG.bucket }).promise();
+            const grid = document.getElementById('file-grid');
+            grid.innerHTML = '';
+            data.Contents.forEach(f => {
+                grid.innerHTML += `<div class="file-card">
+                    <p>${f.Key.substring(0, 10)}...</p>
+                    <button onclick="window.open('${R2_CONFIG.endpoint}/${R2_CONFIG.bucket}/${f.Key}')">تحميل</button>
+                    <button onclick="addFav('${f.Key}')">❤️</button>
+                </div>`;
+            });
+        }
+
+        function addFav(key) {
+            let favs = JSON.parse(localStorage.getItem('favs') || '[]');
+            favs.push(key);
+            localStorage.setItem('favs', JSON.stringify(favs));
+            alert("تمت الإضافة للمفضلة");
+        }
+
+        function verifyCode() {
+            const code = document.getElementById('promoCode').value;
+            if(code === "NFC-PRO-2026") {
+                alert("تم التفعيل! المساحة الآن 16 جيجا");
+            } else {
+                alert("كود خاطئ");
+            }
         }
 
         loadFiles();
