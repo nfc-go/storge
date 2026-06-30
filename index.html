@@ -1,163 +1,44 @@
 <!DOCTYPE html>
-<html lang="en" dir="ltr">
+<html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>NFC GO - Premium Vault</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
-    <script src="script.js" defer></script>
+    <title>رفع الملفات إلى R2</title>
 </head>
-<body class="light-mode">
+<body>
+    <h2>نظام رفع الملفات السحابي</h2>
+    <input type="file" id="fileInput">
+    <button onclick="uploadFile()">رفع الملف</button>
+    <p id="status"></p>
 
-    <div id="app-container" class="app-container blurred">
-        <!-- Top Luxury Header -->
-        <header class="dashboard-header">
-            <div class="header-brand-block">
-                <div class="brand-logo-custom">
-                    <img src="processed_logo.png" alt="NFC GO Logo" class="custom-logo-img">
-                </div>
-                <span class="brand-title">NFC GO</span>
-                <span id="sidebar-premium-badge" class="premium-badge hidden">PRO</span>
-            </div>
-            <div class="header-actions-block">
-                <button id="theme-toggle-btn" class="header-action-btn"><i class="fa-solid fa-moon" id="theme-icon"></i></button>
-                <button id="lang-toggle-btn" class="header-action-btn"><i class="fa-solid fa-language"></i>&nbsp;<span id="lang-indicator">العربية</span></button>
-            </div>
-        </header>
+    <script src="https://sdk.amazonaws.com/js/aws-sdk-2.1000.0.min.js"></script>
+    <script>
+        // ضع المفاتيح هنا مرة واحدة فقط
+        const R2_ENDPOINT = "https://24d79d5b07f5051f2f201553fcbebbce.r2.cloudflarestorage.com";
+        const ACCESS_KEY_ID = "a2cbca47e0a95c1ed288709f91dc826b";
+        const SECRET_ACCESS_KEY = "303b2c8ecc60d3c7e1d66f7bdd4f42af61421241b5861aca837869db73a43db2";
+        const BUCKET_NAME = "nfc-files";
 
-        <!-- Dynamic Main Workspace Grid -->
-        <main class="main-content">
-            <section class="explorer-view-wrapper">
-                <div class="explorer-toolbar">
-                    <h2 id="explorer-current-title" class="explorer-view-title">All Files</h2>
-                    <div id="sidebar-storage-metrics" class="storage-metrics">0.0 MB / 512.0 MB</div>
-                </div>
+        async function uploadFile() {
+            const file = document.getElementById('fileInput').files[0];
+            const status = document.getElementById('status');
+            if (!file) return alert("اختر ملفاً");
 
-                <!-- Progress Bar Top Accent -->
-                <div class="progress-bar-container">
-                    <div id="sidebar-storage-progress" class="progress-bar-fill"></div>
-                </div>
+            const s3 = new AWS.S3({
+                endpoint: R2_ENDPOINT,
+                accessKeyId: ACCESS_KEY_ID,
+                secretAccessKey: SECRET_ACCESS_KEY,
+                signatureVersion: 'v4',
+                region: 'auto'
+            });
 
-                <div id="file-explorer-grid" class="file-explorer-grid">
-                    <div id="explorer-empty-state" class="explorer-empty-state">
-                        <div class="empty-state-icon-wrapper"><i class="fa-solid fa-vault"></i></div>
-                        <h3 class="empty-state-title" id="empty-title">Your Secure Vault is Empty</h3>
-                        <p class="empty-state-subtitle" id="empty-subtitle">Tap the '+' button below to secure your first premium asset.</p>
-                    </div>
-                </div>
-            </section>
-        </main>
-
-        <!-- Premium Bottom Navigation Bar -->
-        <input type="file" id="sidebar-file-input" class="hidden-file-input" accept="image/*,video/*,application/*" />
-        <nav class="bottom-navigation-bar">
-            <button class="nav-tab-item active" data-target="all">
-                <i class="fa-solid fa-folder-open"></i>
-                <span class="tab-label txt-all-files">All Files</span>
-            </button>
-            <button class="nav-tab-item" data-target="photos">
-                <i class="fa-solid fa-image"></i>
-                <span class="tab-label txt-photos">Photos</span>
-            </button>
-            
-            <!-- Central Upload Glowing Trigger Button -->
-            <div class="central-action-container">
-                <button id="sidebar-upload-btn" class="central-glowing-btn">
-                    <i class="fa-solid fa-plus"></i>
-                </button>
-            </div>
-
-            <button class="nav-tab-item" data-target="videos">
-                <i class="fa-solid fa-video"></i>
-                <span class="tab-label txt-videos">Videos</span>
-            </button>
-            <button class="nav-tab-item" data-target="favorites">
-                <i class="fa-solid fa-heart" style="color: #ef4444;"></i>
-                <span class="tab-label txt-favs">Favorites</span>
-            </button>
-        </nav>
-    </div>
-
-    <!-- Modals Overlay Layer Stack -->
-    <div id="modal-overlay-layer" class="modal-overlay-layer">
-        
-        <!-- Auth View Container Gate -->
-        <div id="modal-auth-container" class="app-modal-window modal-auth-size hidden">
-            <div class="modal-branding-header">
-                <div class="auth-logo-center-wrapper">
-                    <img src="processed_logo.png" alt="NFC GO Logo" style="height: 60px; object-fit: contain; margin-bottom: 10px;">
-                </div>
-                <h2 class="auth-modal-title">NFC GO System</h2>
-                <p id="auth-modal-instruction-text" class="auth-modal-subtitle">Verify your identity PIN keycode to establish dynamic connection.</p>
-            </div>
-            
-            <form id="auth-execution-form" onsubmit="return false;">
-                <div id="auth-registration-fields-area" class="input-form-control hidden">
-                    <label class="form-field-label" id="lbl-username">Set Account Owner Name</label>
-                    <input type="text" id="auth-reg-username" class="form-text-input" placeholder="Name" autocomplete="off" />
-                    
-                    <div class="legal-disclaimer-box" id="legal-box">
-                        <strong>Terms & Disclaimer:</strong> By creating this vault, you understand that this is a localized, sandboxed zero-knowledge container. NFC GO holds no responsibility for data loss, damage, or unauthorized local device access. You are fully responsible for your PIN.
-                    </div>
-                    <div style="font-size: 11px; color: var(--text-muted); text-align: center; width: 100%; font-weight: 600; margin-bottom: 15px;" id="legal-agree-text">
-                         By continuing, you accept all terms, conditions, and liability exemptions.
-                    </div>
-                </div>
-
-                <div class="auth-pin-display-group">
-                    <input type="password" id="pin-char-1" class="pin-entry-box" maxlength="1" inputmode="numeric" />
-                    <input type="password" id="pin-char-2" class="pin-entry-box" maxlength="1" inputmode="numeric" />
-                    <input type="password" id="pin-char-3" class="pin-entry-box" maxlength="1" inputmode="numeric" />
-                    <input type="password" id="pin-char-4" class="pin-entry-box" maxlength="1" inputmode="numeric" />
-                </div>
-
-                <button type="submit" class="btn btn-primary btn-block" id="btn-unlock-text">Unlock & Accept Terms</button>
-            </form>
-        </div>
-
-        <!-- Premium Code Subscription Modal -->
-        <div id="modal-billing-subscription-container" class="app-modal-window modal-billing-size hidden">
-            <div class="modal-window-header">
-                <h2 class="modal-window-title" id="bill-title">Upgrade to NFC GO PRO Space</h2>
-                <i class="fa-solid fa-xmark modal-close-trigger" id="billing-close-btn"></i>
-            </div>
-            <div class="modal-window-body">
-                <div class="billing-value-propositions">
-                    <div class="val-prop-item text-success"><i class="fa-solid fa-circle-check"></i> <span id="prop-1">Expand Space to 16GB Storage</span></div>
-                    <div class="val-prop-item"><i class="fa-solid fa-circle-check"></i> <span id="prop-2">Unlock Unlimited Multi-Vault Cloud Access</span></div>
-                </div>
-                <form id="billing-payment-simulation-form" onsubmit="return false;">
-                    <div class="input-form-control">
-                        <label class="form-field-label" id="lbl-card">Enter Premium Activation Code</label>
-                        <input type="text" id="upgrade-promo-code-input" class="form-text-input" placeholder="XXXX-XXXX-XXXX" style="text-align: center; font-weight: 700; letter-spacing: 2px;" required />
-                        <p style="font-size: 11px; color: #3b82f6; margin-top: 8px; text-align: center; font-weight: 500;" id="code-buy-notice">
-                            💡 To purchase an activation code and expand space, please contact NFC GO Sales Agent directly.
-                        </p>
-                    </div>
-                    <button type="submit" class="btn btn-upgrade btn-block" style="margin-top:16px; background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: white;" id="btn-auth-up">Verify Code & Activate</button>
-                </form>
-            </div>
-        </div>
-
-        <!-- Luxury Asset Preview Gallery Lightbox (المعرض الذكي المضاف) -->
-        <div id="modal-preview-lightbox" class="lightbox-modal hidden">
-            <header class="lightbox-header">
-                <span id="lightbox-file-title" class="lightbox-title">File Preview</span>
-                <i class="fa-solid fa-xmark lightbox-close" id="lightbox-close-btn"></i>
-            </header>
-            <div class="lightbox-body">
-                <div id="lightbox-media-container" class="lightbox-media-surface"></div>
-            </div>
-            <footer class="lightbox-footer-toolbar">
-                <button id="lightbox-fav-toggle-btn" class="lightbox-action-btn btn-fav"><i class="fa-solid fa-heart"></i> <span class="txt-lightbox-fav">Favorite</span></button>
-                <button id="lightbox-download-btn" class="lightbox-action-btn btn-dl"><i class="fa-solid fa-cloud-arrow-down"></i> <span class="txt-lightbox-dl">Download</span></button>
-                <button id="lightbox-delete-btn" class="lightbox-action-btn btn-del"><i class="fa-solid fa-trash-can"></i> <span class="txt-lightbox-del">Delete</span></button>
-            </footer>
-        </div>
-
-    </div>
-
+            status.innerText = "جاري الرفع...";
+            try {
+                await s3.putObject({ Bucket: BUCKET_NAME, Key: file.name, Body: file }).promise();
+                status.innerText = "تم الرفع بنجاح!";
+            } catch (err) {
+                status.innerText = "خطأ: تأكد من إعدادات CORS في Cloudflare.";
+            }
+        }
+    </script>
 </body>
 </html>
