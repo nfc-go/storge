@@ -7,132 +7,86 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
-    <script src="script.js" defer></script>
+    <script src="https://sdk.amazonaws.com/js/aws-sdk-2.1000.0.min.js"></script>
 </head>
 <body class="light-mode">
 
-    <div id="app-container" class="app-container blurred">
+    <div id="app-container" class="app-container">
         <header class="dashboard-header">
             <div class="header-brand-block">
-                <div class="brand-logo-custom">
-                    <img src="processed_logo.png" alt="NFC GO Logo" class="custom-logo-img">
-                </div>
                 <span class="brand-title">NFC GO</span>
-                <span id="sidebar-premium-badge" class="premium-badge hidden">PRO</span>
-            </div>
-            <div class="header-actions-block">
-                <button id="theme-toggle-btn" class="header-action-btn"><i class="fa-solid fa-moon" id="theme-icon"></i></button>
-                <button id="lang-toggle-btn" class="header-action-btn"><i class="fa-solid fa-language"></i>&nbsp;<span id="lang-indicator">العربية</span></button>
             </div>
         </header>
 
         <main class="main-content">
             <section class="explorer-view-wrapper">
-                <div class="explorer-toolbar">
-                    <h2 id="explorer-current-title" class="explorer-view-title">All Files</h2>
-                    <div id="sidebar-storage-metrics" class="storage-metrics">0.0 MB / 512.0 MB</div>
-                </div>
-
-                <div class="progress-bar-container">
-                    <div id="sidebar-storage-progress" class="progress-bar-fill"></div>
-                </div>
-
                 <div id="file-explorer-grid" class="file-explorer-grid">
-                    <div id="explorer-empty-state" class="explorer-empty-state">
-                        <div class="empty-state-icon-wrapper"><i class="fa-solid fa-vault"></i></div>
-                        <h3 class="empty-state-title" id="empty-title">Your Secure Vault is Empty</h3>
-                        <p class="empty-state-subtitle" id="empty-subtitle">Tap the '+' button below to secure your first premium asset.</p>
                     </div>
-                </div>
             </section>
         </main>
 
-        <input type="file" id="sidebar-file-input" class="hidden-file-input" accept="image/*,video/*,application/*" />
+        <input type="file" id="sidebar-file-input" class="hidden" style="display:none;" />
         <nav class="bottom-navigation-bar">
-            <button class="nav-tab-item active" data-target="all">
-                <i class="fa-solid fa-folder-open"></i>
-                <span class="tab-label txt-all-files">All Files</span>
-            </button>
-            <button class="nav-tab-item" data-target="photos">
-                <i class="fa-solid fa-image"></i>
-                <span class="tab-label txt-photos">Photos</span>
-            </button>
-            
             <div class="central-action-container">
                 <button id="sidebar-upload-btn" class="central-glowing-btn">
                     <i class="fa-solid fa-plus"></i>
                 </button>
             </div>
-
-            <button class="nav-tab-item" data-target="videos">
-                <i class="fa-solid fa-video"></i>
-                <span class="tab-label txt-videos">Videos</span>
-            </button>
-            <button id="sidebar-upgrade-btn" class="nav-tab-item tab-upgrade-accent">
-                <i class="fa-solid fa-crown"></i>
-                <span class="tab-label txt-upgrade-btn">Upgrade</span>
-            </button>
         </nav>
     </div>
 
-    <div id="modal-overlay-layer" class="modal-overlay-layer">
-        
-        <div id="modal-auth-container" class="app-modal-window modal-auth-size hidden">
-            <div class="modal-branding-header">
-                <div class="auth-logo-center-wrapper">
-                    <img src="processed_logo.png" alt="NFC GO Logo" style="height: 60px; object-fit: contain; margin-bottom: 10px;">
-                </div>
-                <h2 class="auth-modal-title">NFC GO System</h2>
-                <p id="auth-modal-instruction-text" class="auth-modal-subtitle">Verify your identity PIN keycode to establish dynamic connection.</p>
-            </div>
+    <script>
+        // إعدادات الاتصال بـ R2
+        const R2_CONFIG = {
+            endpoint: "https://24d79d5b07f5051f2f201553fcbebbce.r2.cloudflarestorage.com",
+            accessKeyId: "a2cbca47e0a95c1ed288709f91dc826b",
+            secretAccessKey: "303b2c8ecc60d3c7e1d66f7bdd4f42af61421241b5861aca837869db73a43db2",
+            bucket: "nfc-files"
+        };
+
+        const s3 = new AWS.S3({
+            endpoint: R2_CONFIG.endpoint,
+            accessKeyId: R2_CONFIG.accessKeyId,
+            secretAccessKey: R2_CONFIG.secretAccessKey,
+            signatureVersion: 'v4',
+            region: 'auto'
+        });
+
+        // تشغيل زر الرفع
+        document.getElementById('sidebar-upload-btn').addEventListener('click', () => {
+            document.getElementById('sidebar-file-input').click();
+        });
+
+        document.getElementById('sidebar-file-input').addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
             
-            <form id="auth-execution-form" onsubmit="return false;">
-                <div id="auth-registration-fields-area" class="input-form-control hidden">
-                    <label class="form-field-label" id="lbl-username">Set Account Owner Name</label>
-                    <input type="text" id="auth-reg-username" class="form-text-input" placeholder="Name" autocomplete="off" />
-                    
-                    <div class="legal-disclaimer-box" id="legal-box">
-                        <strong>Terms & Disclaimer:</strong> By creating this vault, you understand that this is a localized, sandboxed zero-knowledge container. NFC GO holds no responsibility for data loss, damage, or unauthorized local device access. You are fully responsible for your PIN.
-                    </div>
-                    <div style="font-size: 11px; color: var(--text-muted); text-align: center; width: 100%; font-weight: 600; margin-bottom: 15px;" id="legal-agree-text">
-                        ⚠️ By continuing, you accept all terms, conditions, and liability exemptions.
-                    </div>
-                </div>
+            try {
+                await s3.putObject({ Bucket: R2_CONFIG.bucket, Key: file.name, Body: file }).promise();
+                alert("تم الرفع بنجاح!");
+                loadFiles(); 
+            } catch (err) {
+                alert("فشل الرفع، تأكد من إعدادات CORS.");
+            }
+        });
 
-                <div class="auth-pin-display-group">
-                    <input type="password" id="pin-char-1" class="pin-entry-box" maxlength="1" inputmode="numeric" />
-                    <input type="password" id="pin-char-2" class="pin-entry-box" maxlength="1" inputmode="numeric" />
-                    <input type="password" id="pin-char-3" class="pin-entry-box" maxlength="1" inputmode="numeric" />
-                    <input type="password" id="pin-char-4" class="pin-entry-box" maxlength="1" inputmode="numeric" />
-                </div>
+        // دالة جلب الملفات
+        async function loadFiles() {
+            const grid = document.getElementById('file-explorer-grid');
+            try {
+                const data = await s3.listObjects({ Bucket: R2_CONFIG.bucket }).promise();
+                grid.innerHTML = ''; 
+                data.Contents.forEach(file => {
+                    grid.innerHTML += `
+                        <div class="file-card">
+                            <p>${file.Key}</p>
+                            <button onclick="window.open('${R2_CONFIG.endpoint}/${R2_CONFIG.bucket}/${file.Key}')">تحميل</button>
+                        </div>`;
+                });
+            } catch (e) { console.error(e); }
+        }
 
-                <button type="submit" class="btn btn-primary btn-block" id="btn-unlock-text">Unlock & Accept Terms</button>
-            </form>
-        </div>
-
-        <div id="modal-billing-subscription-container" class="app-modal-window modal-billing-size hidden">
-            <div class="modal-window-header">
-                <h2 class="modal-window-title" id="bill-title">Upgrade to NFC GO PRO Space</h2>
-                <i class="fa-solid fa-xmark modal-close-trigger" id="billing-close-btn"></i>
-            </div>
-            <div class="modal-window-body">
-                <div class="billing-value-propositions">
-                    <div class="val-prop-item text-success"><i class="fa-solid fa-circle-check"></i> <span id="prop-1">Expand Space to 16GB Storage</span></div>
-                    <div class="val-prop-item"><i class="fa-solid fa-circle-check"></i> <span id="prop-2">Unlock Unlimited Multi-Vault Cloud Access</span></div>
-                </div>
-                <form id="billing-payment-simulation-form" onsubmit="return false;">
-                    <div class="input-form-control">
-                        <label class="form-field-label" id="lbl-card">Enter Premium Activation Code</label>
-                        <input type="text" id="upgrade-promo-code-input" class="form-text-input" placeholder="XXXX-XXXX-XXXX" style="text-align: center; font-weight: 700; letter-spacing: 2px;" required />
-                        <p style="font-size: 11px; color: #3b82f6; margin-top: 8px; text-align: center; font-weight: 500;" id="code-buy-notice">
-                            💡 To purchase an activation code and expand space, please contact NFC GO Sales Agent directly.
-                        </p>
-                    </div>
-                    <button type="submit" class="btn btn-upgrade btn-block" style="margin-top:16px; background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: white;" id="btn-auth-up">Verify Code & Activate</button>
-                </form>
-            </div>
-        </div>
-    </div>
-
+        loadFiles();
+    </script>
 </body>
 </html>
